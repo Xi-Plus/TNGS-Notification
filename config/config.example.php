@@ -1,6 +1,6 @@
 <?php
 
-$C['archive']['archive.org'] = true;
+$C['archive']['archive.org'] = false;
 $C['archive']['archive.is'] = true;
 
 $C['FBpageid'] = 'page_id';
