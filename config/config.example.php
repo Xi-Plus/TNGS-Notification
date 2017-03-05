@@ -21,13 +21,16 @@ $G["db"] = new PDO ('mysql:host='.$C["DBhost"].';dbname='.$C["DBname"].';charset
 $C['/last_limit'] = 5;
 
 $M["nottext"] = "僅接受文字訊息";
-$M["notcommand"] = "本粉專由機器人自動運作\n".
+$M["notcommand"] = "無法辨識的訊息\n".
+	"本粉專由機器人自動運作\n".
 	"啟用訊息通知輸入 /start\n".
 	"顯示所有命令輸入 /help";
-$M["/start"] = "已啟用訊息通知";
+$M["/start"] = "已啟用訊息通知\n".
+	"欲取消請輸入 /stop";
 $M["/start_too_many_arg"] = "參數個數錯誤\n".
 	"此指令不需要參數";
-$M["/stop"] = "已停用訊息通知";
+$M["/stop"] = "已停用訊息通知\n".
+	"欲重新啟用請輸入 /start";
 $M["/stop_too_many_arg"] = "參數個數錯誤\n".
 	"此指令不需要參數";
 $M["/help"] = "可用命令\n".
