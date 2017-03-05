@@ -243,10 +243,21 @@ foreach ($row as $data) {
 						if ($news === false) {
 							SendMessage($tmid, $M["/archive_not_found"]);
 						} else {
-							$msg = "#".$idx."\n".
-								"http://web.archive.org/web/*/".$news["url"]."\n\n".
-								"http://archive.is/search/?q=".urlencode($news["url"]);
-							SendMessage($tmid, $msg);
+							$msg = "#".$idx."\n";
+							$isarchive = false;
+							if ($C['archive']['archive.org']) {
+								$msg .= "http://web.archive.org/web/*/".$news["url"]."\n\n";
+								$isarchive = true;
+							}
+							if ($C['archive']['archive.is']) {
+								$msg .= "http://archive.is/search/?q=".urlencode($news["url"])."\n\n";
+								$isarchive = true;
+							}
+							if ($isarchive) {
+								SendMessage($tmid, $msg);
+							} else {
+								SendMessage($tmid, $M["/archive_not_available"]);
+							}
 						}
 					} else {
 						WriteLog("[follow][error][start][selnew] uid=".$uid);

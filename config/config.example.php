@@ -75,5 +75,6 @@ $M["/archive_arg1_not_num"] = "第1個參數錯誤\n".
 $M["/archive_too_many_arg"] = "參數個數錯誤\n".
 	"此指令必須給出一個參數為通知的編號";
 $M["/archive_not_found"] = "找不到此編號";
+$M["/archive_not_available"] = "沒有提供存檔服務";
 $M["wrongcommand"] = "無法辨識命令\n".
 	"輸入 /help 取得可用命令";
