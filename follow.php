@@ -1,9 +1,13 @@
 <?php
-date_default_timezone_set("Asia/Taipei");
 require(__DIR__.'/config/config.php');
-require(__DIR__.'/curl.php');
-require(__DIR__.'/log.php');
-require(__DIR__.'/sendmessage.php');
+if (!in_array(PHP_SAPI, $C["allowsapi"])) {
+	exit("No permission");
+}
+
+date_default_timezone_set("Asia/Taipei");
+require(__DIR__.'/function/curl.php');
+require(__DIR__.'/function/log.php');
+require(__DIR__.'/function/sendmessage.php');
 
 $sth = $G["db"]->prepare("SELECT * FROM `{$C['DBTBprefix']}input` ORDER BY `time` ASC");
 $res = $sth->execute();
@@ -16,7 +20,7 @@ foreach ($row as $data) {
 function GetTmid() {
 	global $C, $G;
 	$res = cURL($C['FBAPI']."me/conversations?fields=participants,updated_time&access_token=".$C['FBpagetoken']);
-	$updated_time = file_get_contents("updated_time.txt");
+	$updated_time = file_get_contents("data/updated_time.txt");
 	$newesttime = $updated_time;
 	while (true) {
 		if ($res === false) {
@@ -47,7 +51,7 @@ function GetTmid() {
 		}
 		$res = cURL($res["paging"]["next"]);
 	}
-	file_put_contents("updated_time.txt", $newesttime);
+	file_put_contents("data/updated_time.txt", $newesttime);
 }
 foreach ($row as $data) {
 	$input = json_decode($data["input"], true);

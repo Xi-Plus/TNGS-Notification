@@ -1,10 +1,8 @@
 <?php
 require(__DIR__.'/config/config.php');
-
-if (!in_array(PHP_SAPI, array("cli", "apache2handler"))) {
+if (!in_array(PHP_SAPI, $C["allowsapi"])) {
 	exit("No permission");
 }
-define("EOL", (PHP_SAPI==="apache2handler"?"<br>\n":PHP_EOL));
 
 $sth = $G["db"]->prepare("SELECT * FROM `{$C['DBTBprefix']}news`");
 $sth->execute();
@@ -49,9 +47,9 @@ for ($key=count($match[0])-1; $key >= 0; $key--) {
 		$res = $sth->execute();
 
 		$old[] = $hash;
-		echo " New".EOL;
+		echo " New\n";
 		$new_cnt++;
-	} else echo " Old".EOL;
+	} else echo " Old\n";
 }
 if ($new_cnt) {
 	echo "list archiving";
@@ -63,5 +61,5 @@ if ($new_cnt) {
 		system("curl -s https://archive.is/submit/ -d 'url=".$C['fetch']."&anyway=1' > /dev/null 2>&1 &");
 		echo " archive.is";
 	}
-	echo " done".EOL;
+	echo " done\n";
 }

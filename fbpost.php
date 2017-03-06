@@ -1,18 +1,17 @@
 <?php
 require(__DIR__.'/config/config.php');
-require(__DIR__.'/log.php');
-
-if (!in_array(PHP_SAPI, array("cli", "apache2handler"))) {
+if (!in_array(PHP_SAPI, $C["allowsapi"])) {
 	exit("No permission");
 }
-define("EOL", (PHP_SAPI==="apache2handler"?"<br>\n":PHP_EOL));
+
+require(__DIR__.'/function/log.php');
 
 $sth = $G["db"]->prepare("SELECT * FROM `{$C['DBTBprefix']}news` WHERE `fbpost` = 0 ORDER BY `time` DESC");
 $sth->execute();
 $row = $sth->fetchAll(PDO::FETCH_ASSOC);
 
 if (count($row) == 0) {
-	exit("No new".EOL);
+	exit("No new\n");
 }
 
 $message="";

@@ -1,13 +1,12 @@
 <?php
 require(__DIR__.'/config/config.php');
-require(__DIR__.'/log.php');
-require(__DIR__.'/curl.php');
-require(__DIR__.'/sendmessage.php');
-
-if (!in_array(PHP_SAPI, array("cli", "apache2handler"))) {
+if (!in_array(PHP_SAPI, $C["allowsapi"])) {
 	exit("No permission");
 }
-define("EOL", (PHP_SAPI==="apache2handler"?"<br>\n":PHP_EOL));
+
+require(__DIR__.'/function/log.php');
+require(__DIR__.'/function/curl.php');
+require(__DIR__.'/function/sendmessage.php');
 
 $sth = $G["db"]->prepare("SELECT * FROM `{$C['DBTBprefix']}news` WHERE `fbmessage` = 0 ORDER BY `time` ASC");
 $sth->execute();
