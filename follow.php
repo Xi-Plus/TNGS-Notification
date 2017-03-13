@@ -79,12 +79,15 @@ foreach ($row as $data) {
 			}
 			$tmid = $row["tmid"];
 			if (!isset($messaging['message']['text'])) {
-				SendMessage($tmid, $M["nottext"]);
+				SendMessage($tmid, "僅接受文字訊息");
 				continue;
 			}
 			$msg = $messaging['message']['text'];
 			if ($msg[0] !== "/") {
-				SendMessage($tmid, $M["notcommand"]);
+				SendMessage($tmid, "無法辨識的訊息\n".
+					"本粉專由機器人自動運作\n".
+					"啟用訊息通知輸入 /start\n".
+					"顯示所有命令輸入 /help");
 				continue;
 			}
 			$msg = str_replace("\n", " ", $msg);
@@ -93,33 +96,37 @@ foreach ($row as $data) {
 			switch ($cmd[0]) {
 				case '/start':
 					if (isset($cmd[1])) {
-						SendMessage($tmid, $M["/start_too_many_arg"]);
+						SendMessage($tmid, "參數個數錯誤\n".
+							"此命令不需要參數");
 						continue;
 					}
 					$sth = $G["db"]->prepare("UPDATE `{$C['DBTBprefix']}user` SET `fbmessage` = '1' WHERE `tmid` = :tmid");
 					$sth->bindValue(":tmid", $tmid);
 					$res = $sth->execute();
 					if ($res) {
-						SendMessage($tmid, $M["/start"]);
+						SendMessage($tmid, "已啟用訊息通知\n".
+							"欲取消請輸入 /stop");
 					} else {
 						WriteLog("[follow][error][start][upduse] uid=".$uid);
-						SendMessage($tmid, $M["fail"]);
+						SendMessage($tmid, "命令失敗");
 					}
 					break;
 				
 				case '/stop':
 					if (isset($cmd[1])) {
-						SendMessage($tmid, $M["/stop_too_many_arg"]);
+						SendMessage($tmid, "參數個數錯誤\n".
+							"此命令不需要參數");
 						continue;
 					}
 					$sth = $G["db"]->prepare("UPDATE `{$C['DBTBprefix']}user` SET `fbmessage` = '0' WHERE `tmid` = :tmid");
 					$sth->bindValue(":tmid", $tmid);
 					$res = $sth->execute();
 					if ($res) {
-						SendMessage($tmid, $M["/stop"]);
+						SendMessage($tmid, "已停用訊息通知\n".
+							"欲重新啟用請輸入 /start");
 					} else {
 						WriteLog("[follow][error][stop][upduse] uid=".$uid);
-						SendMessage($tmid, $M["fail"]);
+						SendMessage($tmid, "命令失敗");
 					}
 					break;
 				
@@ -128,45 +135,56 @@ foreach ($row as $data) {
 					$b = 1;
 					if (isset($cmd[1]) && !isset($cmd[2])) {
 						if (!ctype_digit($cmd[1])) {
-							SendMessage($tmid, $M["/last1_arg1_not_num"]);
+							SendMessage($tmid, "第1個參數錯誤\n".
+								"回傳筆數應為一個整數，例如 /last 3 顯示最後3筆通知");
 							continue;
 						}
 						$b = (int)$cmd[1];
 						if ($b < 1) {
-							SendMessage($tmid, $M["/last1_arg1_less_than_1"]);
+							SendMessage($tmid, "第1個參數錯誤\n".
+								"回傳筆數應該大於等於1");
 							continue;
 						}
 						if ($b > $C['/last_limit']) {
-							SendMessage($tmid, $M["/last1_arg1_limit_exceeded"]);
+							SendMessage($tmid, "第1個參數錯誤\n".
+								"回傳筆數至多".$C['/last_limit']."筆");
 							continue;
 						}
 					}
 					if (isset($cmd[2])) {
 						if (!ctype_digit($cmd[1])) {
-							SendMessage($tmid, $M["/last2_arg1_not_num"]);
+							SendMessage($tmid, "第1個參數錯誤\n".
+								"忽略筆數應為一個整數，例如 /last 10 3 忽略最後10筆通知");
 							continue;
 						}
 						if (!ctype_digit($cmd[2])) {
-							SendMessage($tmid, $M["/last_arg2_not_num"]);
+							SendMessage($tmid, "第2個參數錯誤\n".
+								"回傳筆數應為一個整數，例如 /last 10 3 顯示3筆通知");
 							continue;
 						}
 						$a = (int)$cmd[1];
 						if ($a < 0) {
-							SendMessage($tmid, $M["/last_arg1_less_than_0"]);
+							SendMessage($tmid, "第1個參數錯誤\n".
+								"忽略筆數應該大於等於0，例如 /last 10 3 忽略最後10筆通知");
 							continue;
 						}
 						$b = (int)$cmd[2];
 						if ($b < 1) {
-							SendMessage($tmid, $M["/last_arg2_less_than_1"]);
+							SendMessage($tmid, "第2個參數錯誤\n".
+								"回傳筆數應該大於等於1，例如 /last 10 3 顯示3筆通知");
 							continue;
 						}
 						if ($b > $C['/last_limit']) {
-							SendMessage($tmid, $M["/last2_arg2_limit_exceeded"]);
+							SendMessage($tmid, "第2個參數錯誤\n".
+								"回傳筆數至多".$C['/last_limit']."筆");
 							continue;
 						}
 					}
 					if (isset($cmd[3])) {
-						SendMessage($tmid, $M["/last_too_many_arg"]);
+						SendMessage($tmid, "參數個數錯誤\n".
+							"不使用參數顯示最後一筆通知\n".
+							"1個參數設定顯示筆數，例如 /last 3 顯示最後3筆通知\n".
+							"2個參數設定忽略及顯示筆數，例如 /last 10 3 略過最後10筆，顯示3筆通知");
 						continue;
 					}
 					$sth = $G["db"]->prepare("SELECT * FROM `{$C['DBTBprefix']}news` ORDER BY `time` DESC LIMIT {$a},{$b}");
@@ -174,7 +192,7 @@ foreach ($row as $data) {
 					$row = $sth->fetchAll(PDO::FETCH_ASSOC);
 					if ($res) {
 						if (count($row) == 0) {
-							SendMessage($tmid, $M["/last_no_result"]);
+							SendMessage($tmid, "查無任何通知");
 						} else {
 							if ($a == 0) {
 								SendMessage($tmid, "顯示最後".$b."筆訊息");
@@ -189,23 +207,26 @@ foreach ($row as $data) {
 						}
 					} else {
 						WriteLog("[follow][error][last][selnew] uid=".$uid);
-						SendMessage($tmid, $M["fail"]);
+						SendMessage($tmid, "命令失敗");
 					}
 					break;
 
 				case '/link':
 					if (isset($cmd[1])) {
 						if (preg_match("/^-?\d+$/", $cmd[1]) == 0) {
-							SendMessage($tmid, $M["/link_arg1_error"]);
+							SendMessage($tmid, "第1個參數錯誤\n".
+								"必須是一個非0整數，正數為編號、負數為顯示筆數");
 							continue;
 						}
 						$n = (int)$cmd[1];
 						if ($n == 0) {
-							SendMessage($tmid, $M["/link_arg1_error"]);
+							SendMessage($tmid, "第1個參數錯誤\n".
+								"必須是一個非0整數，正數為編號、負數為顯示筆數");
 							continue;
 						}
 						if (isset($cmd[2])) {
-							SendMessage($tmid, $M["/link_too_many_arg"]);
+							SendMessage($tmid, "參數個數錯誤\n".
+								"此命令必須給出一個參數為通知的編號");
 							continue;
 						}
 					} else {
@@ -218,14 +239,14 @@ foreach ($row as $data) {
 						$news = $sth->fetch(PDO::FETCH_ASSOC);
 						if ($res) {
 							if ($news === false) {
-								SendMessage($tmid, $M["/link_not_found"]);
+								SendMessage($tmid, "找不到此編號");
 							} else {
 								$msg = "#".$n."\n".$news["url"];
 								SendMessage($tmid, $msg);
 							}
 						} else {
 							WriteLog("[follow][error][start][selnew] uid=".$uid);
-							SendMessage($tmid, $M["fail"]);
+							SendMessage($tmid, "命令失敗");
 						}
 					} else {
 						$n = -$n;
@@ -241,7 +262,7 @@ foreach ($row as $data) {
 						$row = $sth->fetchAll(PDO::FETCH_ASSOC);
 						if ($res) {
 							if (count($row) == 0) {
-								SendMessage($tmid, $M["/link_no_result"]);
+								SendMessage($tmid, "查無任何通知");
 							} else {
 								if ($a == 0) {
 									SendMessage($tmid, "顯示最後".$b."筆通知的連結");
@@ -256,23 +277,25 @@ foreach ($row as $data) {
 							}
 						} else {
 							WriteLog("[follow][error][link][selnew] uid=".$uid);
-							SendMessage($tmid, $M["fail"]);
+							SendMessage($tmid, "命令失敗");
 						}
 					}
 					break;
-				
 
 				case '/archive':
 					if (!isset($cmd[1])) {
-						SendMessage($tmid, $M["/archive_arg1_not_given"]);
+						SendMessage($tmid, "參數不足\n".
+							"此命令必須給出一個參數為通知的編號");
 						continue;
 					}
 					if (isset($cmd[2])) {
-						SendMessage($tmid, $M["/archive_too_many_arg"]);
+						SendMessage($tmid, "參數個數錯誤\n".
+							"此命令必須給出一個參數為通知的編號");
 						continue;
 					}
 					if (!ctype_digit($cmd[1])) {
-						SendMessage($tmid, $M["/archive_arg1_not_num"]);
+						SendMessage($tmid, "第1個參數錯誤\n".
+							"編號必須是一個整數");
 						continue;
 					}
 					$idx = (int)$cmd[1];
@@ -282,7 +305,7 @@ foreach ($row as $data) {
 					$news = $sth->fetch(PDO::FETCH_ASSOC);
 					if ($res) {
 						if ($news === false) {
-							SendMessage($tmid, $M["/archive_not_found"]);
+							SendMessage($tmid, "找不到此編號");
 						} else {
 							$msg = "#".$idx."\n";
 							$isarchive = false;
@@ -297,21 +320,82 @@ foreach ($row as $data) {
 							if ($isarchive) {
 								SendMessage($tmid, $msg);
 							} else {
-								SendMessage($tmid, $M["/archive_not_available"]);
+								SendMessage($tmid, "沒有提供存檔服務");
 							}
 						}
 					} else {
 						WriteLog("[follow][error][start][selnew] uid=".$uid);
-						SendMessage($tmid, $M["fail"]);
+						SendMessage($tmid, "命令失敗");
 					}
 					break;
 				
 				case '/help':
-					SendMessage($tmid, $M["/help"]);
+					if (isset($cmd[2])) {
+						$msg = "參數過多\n".
+							"必須給出一個參數為命令的名稱";
+					} else if (isset($cmd[1])) {
+						switch ($cmd[1]) {
+							case 'start':
+								$msg = "/start 啟用訊息通知";
+								break;
+							
+							case 'stop':
+								$msg = "/stop 停用訊息通知";
+								break;
+							
+							case 'last':
+								$msg = "/last 顯示最後一筆通知\n".
+									"/last [count] 顯示最後[count]筆通知\n".
+									"/last [offset] [count] 略過最後[offset]筆，顯示[count]筆通知\n".
+									"([count]至多".$C['/last_limit'].")\n\n".
+									"範例：\n".
+									"/last 3 顯示最後3筆\n".
+									"/last 5 3 顯示最後6~8筆";
+								break;
+							
+							case 'link':
+								$msg = "/link 顯示最後一筆通知的連結\n".
+									 "/link [id] 顯示編號[id]的連結\n".
+									 "/link -[count] 顯示最後[count]筆的連結\n".
+									 "    若[count]>".$C['/link_limit']."僅會顯示[count]起算".$C['/link_limit']."筆\n\n".
+									"範例：\n".
+									"/link 顯示最後一筆\n".
+									"/link 12345 顯示編號12345\n".
+									"/link -3 顯示最後3筆\n".
+									"/link -8 顯示最後6~8筆";
+								break;
+							
+							case 'archive':
+								$msg = "/archive [id] 顯示編號[id]的存檔連結\n\n".
+									"範例：\n".
+									"/archive 12345 顯示編號12345";
+								break;
+							
+							case 'help':
+								$msg = "/help 顯示所有命令";
+								break;
+							
+							default:
+								$msg = "查無此命令";
+								break;
+						}
+					} else {
+						$msg = "可用命令\n".
+						"/start 啟用訊息通知\n".
+						"/stop 停用訊息通知\n".
+						"/last 顯示舊通知\n".
+						"/link 顯示通知的連結\n".
+						"/archive 顯示通知的存檔連結\n".
+						"/help 顯示所有命令\n\n".
+						"/help [命令] 顯示命令的詳細用法\n".
+						"範例： /help link";
+					}
+					SendMessage($tmid, $msg);
 					break;
 				
 				default:
-					SendMessage($tmid, $M["wrongcommand"]);
+					SendMessage($tmid, "無法辨識命令\n".
+						"輸入 /help 取得可用命令");
 					break;
 			}
 		}
