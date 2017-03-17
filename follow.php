@@ -60,6 +60,9 @@ foreach ($row as $data) {
 			$mmid = "m_".$messaging['message']['mid'];
 			$res = cURL($C['FBAPI'].$mmid."?fields=from&access_token=".$C['FBpagetoken']);
 			$res = json_decode($res, true);
+			if (!isset($res["from"]["id"])) {
+				WriteLog("[follow][error][uidnotset] ".json_encode($res));
+			}
 			$uid = $res["from"]["id"];
 
 			$sth = $G["db"]->prepare("SELECT * FROM `{$C['DBTBprefix']}user` WHERE `uid` = :uid");
