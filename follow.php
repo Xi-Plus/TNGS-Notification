@@ -236,7 +236,7 @@ foreach ($row as $data) {
 						$n = -1;
 					}
 					if ($n >= 0) {
-						$sth = $G["db"]->prepare("SELECT * FROM `{$C['DBTBprefix']}news` WHERE `idx` = :idx");
+						$sth = $G["db"]->prepare("SELECT * FROM `{$C['DBTBprefix']}news` WHERE `idx` = :idx ORDER BY `time` DESC");
 						$sth->bindValue(":idx", $n);
 						$res = $sth->execute();
 						$news = $sth->fetch(PDO::FETCH_ASSOC);
@@ -302,7 +302,7 @@ foreach ($row as $data) {
 						continue;
 					}
 					$idx = (int)$cmd[1];
-					$sth = $G["db"]->prepare("SELECT * FROM `{$C['DBTBprefix']}news` WHERE `idx` = :idx");
+					$sth = $G["db"]->prepare("SELECT * FROM `{$C['DBTBprefix']}news` WHERE `idx` = :idx ORDER BY `time` DESC");
 					$sth->bindValue(":idx", $idx);
 					$res = $sth->execute();
 					$news = $sth->fetch(PDO::FETCH_ASSOC);
@@ -327,7 +327,67 @@ foreach ($row as $data) {
 							}
 						}
 					} else {
-						WriteLog("[follow][error][start][selnew] uid=".$uid);
+						WriteLog("[follow][error][archive][selnew] uid=".$uid);
+						SendMessage($tmid, "命令失敗");
+					}
+					break;
+
+				case '/show':
+					if (!isset($cmd[1])) {
+						SendMessage($tmid, "參數不足\n".
+							"此命令必須給出一個參數為通知的編號");
+						continue;
+					}
+					if (isset($cmd[2])) {
+						SendMessage($tmid, "參數個數錯誤\n".
+							"此命令必須給出一個參數為通知的編號");
+						continue;
+					}
+					if (!ctype_digit($cmd[1])) {
+						SendMessage($tmid, "第1個參數錯誤\n".
+							"編號必須是一個整數");
+						continue;
+					}
+					$idx = (int)$cmd[1];
+					$sth = $G["db"]->prepare("SELECT * FROM `{$C['DBTBprefix']}news` WHERE `idx` = :idx ORDER BY `time` DESC");
+					$sth->bindValue(":idx", $idx);
+					$res = $sth->execute();
+					$news = $sth->fetch(PDO::FETCH_ASSOC);
+					if ($res) {
+						if ($news === false) {
+							SendMessage($tmid, "找不到此編號");
+						} else {
+							$content = file_get_contents($news["url"]);
+							if ($content === false) {
+								SendMessage($tmid, "抓取網頁失敗\n".
+									"請直接自行點選連結查看\n".
+									$news["url"]);
+								continue;
+							}
+							$content = iconv("Big5", "UTF-8//IGNORE", $content);
+							$content = str_replace("\r\n", "\n", $content);
+							$p1 = strpos($content, "<center><hr width=95%></center><font color=#005555>");
+							$p2 = strpos($content, "<center><hr width=99%>");
+							if ($p1 !== false && $p2 !== false) {
+								$content = substr($content, $p1, $p2-$p1);
+								$content = html_entity_decode($content);
+								$content = str_replace(array("<br>", "<BR>", "<p>", "<P>"), "\n", $content);
+								$content = strip_tags($content);
+								$content = preg_replace("/\n{3,}/", "\n\n", $content);
+								$content = preg_replace("/^\n+/", "", $content);
+								$content = preg_replace("/\n+$/", "", $content);
+								SendMessage($tmid, "#".$news["idx"]."\n".
+									date("m/d", strtotime($news["date"]))." ".$news["department"]." ".$news["type"]."：".$news["text"]."\n".
+									"----------------------------------------\n".
+									$content);
+							} else {
+								SendMessage($tmid, "解析網頁失敗\n".
+									"請直接自行點選連結查看\n".
+									$news["url"]);
+							}
+						}
+					} else {
+						WriteLog("[follow][error][show][selnew] uid=".$uid);
 						SendMessage($tmid, "命令失敗");
 					}
 					break;
@@ -374,6 +434,12 @@ foreach ($row as $data) {
 									"/archive 12345 顯示編號12345";
 								break;
 							
+							case 'show':
+								$msg = "/show [id] 顯示編號[id]的內文\n\n".
+									"範例：\n".
+									"/show 12345 顯示編號12345";
+								break;
+							
 							case 'help':
 								$msg = "/help 顯示所有命令";
 								break;
@@ -389,6 +455,7 @@ foreach ($row as $data) {
 						"/last 顯示舊通知\n".
 						"/link 顯示通知的連結\n".
 						"/archive 顯示通知的存檔連結\n".
+						"/show 顯示通知的內文\n".
 						"/help 顯示所有命令\n\n".
 						"/help [命令] 顯示命令的詳細用法\n".
 						"範例： /help link";
