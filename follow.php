@@ -76,7 +76,7 @@ foreach ($row as $data) {
 				$sth->execute();
 				$row = $sth->fetch(PDO::FETCH_ASSOC);
 				if ($row === false) {
-					WriteLog("[follow][error][uid404] sid=".$sid." uid=".$uid);
+					WriteLog("[follow][error][uid404] sid=".$sid);
 					continue;
 				} else {
 					WriteLog("[follow][info][newuser] sid=".$sid." uid=".$uid);
@@ -88,6 +88,10 @@ foreach ($row as $data) {
 				$sth->bindValue(":lastread", "2038-01-19 03:04:17");
 				$sth->bindValue(":tmid", $tmid);
 				$res = $sth->execute();
+				if ($res === false) {
+					WriteLog("[follow][error][read] tmid=".$tmid);
+				}
+				WriteLog("[follow][info][read] tmid=".$tmid);
 				continue;
 			}
 			if (!isset($messaging['message']['text'])) {

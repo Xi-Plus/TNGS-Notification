@@ -39,7 +39,11 @@ foreach ($newss as $news) {
 		if (strtotime($user["lastread"]) > time()) {
 			$sthread->bindValue(":lastread", date("Y-m-d H:i:s"));
 			$sthread->bindValue(":tmid", $user["tmid"]);
-			$sthread->execute();
+			$res = $sthread->execute();
+			if ($res === false) {
+				WriteLog("[fbmsg][error][read] tmid=".$user["tmid"]);
+				continue;
+			}
 		}
 	}
 	if ($news["idx"] == 0) {
