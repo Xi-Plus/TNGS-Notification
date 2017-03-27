@@ -225,72 +225,34 @@ foreach ($row as $data) {
 
 				case '/link':
 					if (isset($cmd[1])) {
-						if (preg_match("/^-?\d+$/", $cmd[1]) == 0) {
+						if (preg_match("/^\d+$/", $cmd[1]) == 0) {
 							SendMessage($tmid, "第1個參數錯誤\n".
-								"必須是一個非0整數，正數為編號、負數為顯示筆數");
+								"必須是正整數為通知的編號");
 							continue;
 						}
 						$n = (int)$cmd[1];
 						if ($n == 0) {
 							SendMessage($tmid, "第1個參數錯誤\n".
-								"必須是一個非0整數，正數為編號、負數為顯示筆數");
+								"必須是正整數為通知的編號");
 							continue;
 						}
-						if (isset($cmd[2])) {
-							SendMessage($tmid, "參數個數錯誤\n".
-								"此命令必須給出一個參數為通知的編號");
-							continue;
-						}
-					} else {
-						$n = -1;
-					}
-					if ($n >= 0) {
-						$sth = $G["db"]->prepare("SELECT * FROM `{$C['DBTBprefix']}news` WHERE `idx` = :idx ORDER BY `time` DESC");
+						$sth = $G["db"]->prepare("SELECT * FROM `{$C['DBTBprefix']}news` WHERE `idx` = :idx");
 						$sth->bindValue(":idx", $n);
-						$res = $sth->execute();
-						$news = $sth->fetch(PDO::FETCH_ASSOC);
-						if ($res) {
-							if ($news === false) {
-								SendMessage($tmid, "找不到此編號");
-							} else {
-								$msg = "#".$n."\n".$news["url"];
-								SendMessage($tmid, $msg);
-							}
+					} else {
+						$sth = $G["db"]->prepare("SELECT * FROM `{$C['DBTBprefix']}news` ORDER BY `time` DESC LIMIT 1");
+					}
+					$res = $sth->execute();
+					$news = $sth->fetch(PDO::FETCH_ASSOC);
+					if ($res) {
+						if ($news === false) {
+							SendMessage($tmid, "找不到此編號");
 						} else {
-							WriteLog("[follow][error][start][selnew] uid=".$uid);
-							SendMessage($tmid, "命令失敗");
+							$msg = "#".$news["idx"]."\n".$news["url"];
+							SendMessage($tmid, $msg);
 						}
 					} else {
-						$n = -$n;
-						if ($n <= $C['/link_limit']) {
-							$a = 0;
-							$b = $n;
-						} else {
-							$a = $n - $C['/link_limit'];
-							$b = $C['/link_limit'];
-						}
-						$sth = $G["db"]->prepare("SELECT * FROM `{$C['DBTBprefix']}news` ORDER BY `time` DESC LIMIT {$a},{$b}");
-						$res = $sth->execute();
-						$row = $sth->fetchAll(PDO::FETCH_ASSOC);
-						if ($res) {
-							if (count($row) == 0) {
-								SendMessage($tmid, "查無任何通知");
-							} else {
-								if ($a == 0) {
-									SendMessage($tmid, "顯示最後".$b."筆通知的連結");
-								} else {
-									SendMessage($tmid, "忽略最後".$a."筆，顯示".$b."筆通知的連結");
-								}
-								foreach (array_reverse($row) as $temp) {
-									$msg = "#".$temp["idx"]."\n".$temp["url"];
-									SendMessage($tmid, $msg);
-								}
-								SendMessage($tmid, "顯示更舊".$C['/link_limit']."筆輸入 /link -".($a+$b+$C['/link_limit']));
-							}
-						} else {
-							WriteLog("[follow][error][link][selnew] uid=".$uid);
-							SendMessage($tmid, "命令失敗");
-						}
+						WriteLog("[follow][error][start][selnew] uid=".$uid);
+						SendMessage($tmid, "命令失敗");
 					}
 					break;
 
@@ -421,20 +383,17 @@ foreach ($row as $data) {
 									"/last [offset] [count] 略過最後[offset]筆，顯示[count]筆通知\n".
 									"([count]至多".$C['/last_limit'].")\n\n".
 									"範例：\n".
+									"/last 顯示最後一筆\n".
 									"/last 3 顯示最後3筆\n".
 									"/last 5 3 顯示最後6~8筆";
 								break;
 							
 							case 'link':
 								$msg = "/link 顯示最後一筆通知的連結\n".
-									 "/link [id] 顯示編號[id]的連結\n".
-									 "/link -[count] 顯示最後[count]筆的連結\n".
-									 "    若[count]>".$C['/link_limit']."僅會顯示[count]起算".$C['/link_limit']."筆\n\n".
+									 "/link [id] 顯示編號[id]的連結\n\n".
 									"範例：\n".
 									"/link 顯示最後一筆\n".
-									"/link 12345 顯示編號12345\n".
-									"/link -3 顯示最後3筆\n".
-									"/link -8 顯示最後6~8筆";
+									"/link 12345 顯示編號1234";
 								break;
 							
 							case 'archive':

@@ -22,4 +22,3 @@ $C['fetch'] = 'http://www.tngs.tn.edu.tw/tngs/board/';
 $G["db"] = new PDO ('mysql:host='.$C["DBhost"].';dbname='.$C["DBname"].';charset=utf8', $C["DBuser"], $C["DBpass"]);
 
 $C['/last_limit'] = 20;
-$C['/link_limit'] = 5;
