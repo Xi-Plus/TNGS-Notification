@@ -14,7 +14,8 @@ $sth->bindValue(":lastread", $time);
 $sth->execute();
 $users = $sth->fetchAll(PDO::FETCH_ASSOC);
 foreach ($users as $user) {
-	SendMessage($user["tmid"], "系統偵測到您已經有{$C['UnreadLimitText']}沒有讀取訊息，已自動將您的訂閱取消\n".
+	SendMessage($user["tmid"], "【系統通知】您的接收通知狀態已被系統自動取消\n".
+		"因為您已經有{$C['UnreadLimitText']}沒有讀取訊息\n".
 		"欲重新接收通知輸入 /start");
 }
 
