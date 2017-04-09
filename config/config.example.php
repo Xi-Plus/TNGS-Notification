@@ -17,6 +17,8 @@ $C['DBTBprefix'] = 'tngs_notification_';
 $C['UnreadLimit'] = 86400*7;
 $C['UnreadLimitText'] = "7天";
 
+$C['LogKeep'] = 86400*7;
+
 $C['fetch'] = 'http://www.tngs.tn.edu.tw/tngs/board/';
 
 $G["db"] = new PDO ('mysql:host='.$C["DBhost"].';dbname='.$C["DBname"].';charset=utf8', $C["DBuser"], $C["DBpass"]);
