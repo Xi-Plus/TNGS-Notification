@@ -23,7 +23,7 @@ foreach ($newss as $news) {
 	if ($news["idx"] == 0) {
 		$msg = $news["text"];
 	} else {
-		$msg = "#".$news["idx"]."\n".date("m/d", strtotime($news["date"]))." ".$news["department"]." ".$news["type"]."：".$news["text"];
+		$msg = $C['Pagename']." #".$news["idx"]."\n".date("m/d", strtotime($news["date"]))." ".$news["department"]." ".$news["type"]."：".$news["text"];
 	}
 	foreach ($users as $user) {
 		$hash = md5(json_encode(array("tmid"=>$user["tmid"], "message"=>$msg, "time"=>$news["time"])));
