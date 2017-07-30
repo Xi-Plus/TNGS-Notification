@@ -219,7 +219,7 @@ foreach ($row as $data) {
 								SendMessage($tmid, "忽略最後".$a."筆，顯示".$b."筆訊息");
 							}
 							foreach (array_reverse($row) as $temp) {
-								$msg = "#".$temp["idx"]."\n".date("m/d", strtotime($temp["date"]))." ".$temp["department"]." ".$temp["type"]."：".$temp["text"];
+								$msg = $C['Pagename']." #".$temp["idx"]."\n".date("m/d", strtotime($temp["date"]))." ".$temp["department"]." ".$temp["type"]."：".$temp["text"];
 								SendMessage($tmid, $msg);
 							}
 							SendMessage($tmid, "顯示更舊".$b."筆輸入 /last ".($a+$b)." ".$b);
@@ -254,7 +254,7 @@ foreach ($row as $data) {
 						if ($news === false) {
 							SendMessage($tmid, "找不到此編號");
 						} else {
-							$msg = "#".$news["idx"]."\n".$news["url"];
+							$msg = $C['Pagename']." #".$news["idx"]."\n".$news["url"];
 							SendMessage($tmid, $msg);
 						}
 					} else {
@@ -288,7 +288,7 @@ foreach ($row as $data) {
 						if ($news === false) {
 							SendMessage($tmid, "找不到此編號");
 						} else {
-							$msg = "#".$idx."\n";
+							$msg = $C['Pagename']." #".$idx."\n";
 							$isarchive = false;
 							if ($C['archive']['archive.org']) {
 								$msg .= "http://web.archive.org/web/*/".$news["url"]."\n\n";
@@ -354,7 +354,7 @@ foreach ($row as $data) {
 								$content = preg_replace("/\n{3,}/", "\n\n", $content);
 								$content = preg_replace("/^\n+/", "", $content);
 								$content = preg_replace("/\n+$/", "", $content);
-								SendMessage($tmid, "#".$news["idx"]."\n".
+								SendMessage($tmid, $C['Pagename']." #".$news["idx"]."\n".
 									date("m/d", strtotime($news["date"]))." ".$news["department"]." ".$news["type"]."：".$news["text"]."\n".
 									"----------------------------------------\n".
 									$content);
