@@ -359,7 +359,7 @@ foreach ($row as $data) {
 									"----------------------------------------\n".
 									$content);
 							} else {
-								SendMessage($tmid, "解析網頁失敗，此問題修復後將會收到通知\n\n".
+								SendMessage($tmid, "解析網頁失敗，請將此問題報告到 Messenger @xiplus.dev\n\n".
 									"請直接自行點選連結查看\n".
 									$news["url"]);
 							}
