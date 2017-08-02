@@ -371,6 +371,11 @@ foreach ($row as $data) {
 						SendMessage($tmid, "命令失敗");
 					}
 					break;
+
+				case 'report':
+				case '/report':
+					SendMessage($tmid, "請將錯誤報告及意見回饋傳送至 https://m.me/xiplus.dev");
+					break;
 				
 				case 'help':
 				case '/help':
@@ -434,6 +439,7 @@ foreach ($row as $data) {
 						"link 顯示通知的連結\n".
 						"archive 顯示通知的存檔連結\n".
 						"show 顯示通知的內文\n".
+						"report 錯誤報告或回饋意見\n".
 						"help 顯示所有命令\n\n".
 						"help [命令] 顯示命令的詳細用法\n".
 						"範例： help link";
@@ -445,7 +451,8 @@ foreach ($row as $data) {
 					SendMessage($tmid, "無法辨識的命令\n".
 						"本粉專由機器人自動運作\n".
 						"啟用訊息通知輸入 start\n".
-						"顯示所有命令輸入 help");
+						"顯示所有命令輸入 help\n".
+						"錯誤報告或回饋意見輸入 report");
 					break;
 			}
 		}
