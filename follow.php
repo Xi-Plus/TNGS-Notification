@@ -108,6 +108,7 @@ foreach ($row as $data) {
 			$msg = str_replace("\n", " ", $msg);
 			$msg = preg_replace("/\s+/", " ", $msg);
 			$cmd = explode(" ", $msg);
+			$cmd[0] = strtolower($cmd[0]);
 			switch ($cmd[0]) {
 				case 'start':
 				case '/start':
