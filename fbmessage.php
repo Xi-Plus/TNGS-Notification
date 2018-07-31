@@ -69,7 +69,7 @@ $row = $sth->fetchAll(PDO::FETCH_ASSOC);
 $sthdel = $G["db"]->prepare("DELETE FROM `{$C['DBTBprefix']}msgqueue` WHERE `hash` = :hash");
 foreach ($row as $msg) {
 	$res = SendMessage($msg["tmid"], $msg["message"]);
-	if ($res) {
+	if ($res === true || $res["code"] == 230) {
 		$sthdel->bindValue(":hash", $msg["hash"]);
 		$res = $sthdel->execute();
 		if ($res === false) {
