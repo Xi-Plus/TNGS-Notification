@@ -19,3 +19,19 @@ function SendMessage($tmid, $message) {
 	}
 	return true;
 }
+
+function SendTGMessage($chat_id, $message) {
+	global $C, $G;
+	$post = array(
+		"chat_id" => $chat_id,
+		"disable_web_page_preview" => true,
+		"text" => $message
+	);
+	$res = cURL("https://api.telegram.org/bot".$C['TGtoken']."/sendMessage", $post);
+	$res = json_decode($res, true);
+	if (!isset($res["ok"])) {
+		WriteLog("[tgmsg][error] res=".json_encode($res));
+		return false;
+	}
+	return true;
+}
