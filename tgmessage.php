@@ -17,7 +17,7 @@ if (count($row) == 0) {
 }
 
 foreach ($row as $news) {
-	$msg = $C['PagenameTG']." #".$news["idx"]."\n".date("m/d", strtotime($news["date"]))." ".$news["department"]."：".$news["text"]."\n".$news["url"];
+	$msg = $C['PagenameTG']." #".$news["idx"]."\n".date("m/d", strtotime($news["date"]))." ".$news["department"]." ".$news["type"]."：".$news["text"]."\n".$news["url"];
 
 	$res = SendTGMessage($C['TGchatid'], $msg);
 	if ($res === true) {
