@@ -378,6 +378,13 @@ foreach ($row as $data) {
 					SendMessage($tmid, "請將錯誤報告及意見回饋傳送至 https://m.me/xiplus.dev");
 					break;
 				
+				case 'tg':
+				case '/tg':
+				case 'telegram':
+				case '/telegram':
+					SendMessage($tmid, "Telegram頻道連結： https://t.me/TNGS_Notification");
+					break;
+				
 				case 'help':
 				case '/help':
 					if (isset($cmd[2])) {
@@ -434,6 +441,7 @@ foreach ($row as $data) {
 						}
 					} else {
 						$msg = "可用命令\n".
+						"tg 取得Telegram頻道連結\n".
 						"start 啟用訊息通知\n".
 						"stop 停用訊息通知\n".
 						"last 顯示舊通知\n".
